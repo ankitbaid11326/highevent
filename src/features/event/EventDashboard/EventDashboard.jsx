@@ -63,13 +63,6 @@ class EventDashboard extends Component {
         selectedEvent: null
     };
 
-    handleEditEvent = eventToUpdate => () => {
-        this.setState({
-            selectedEvent: eventToUpdate,
-            isOpen: true
-        });
-    };
-
     handleFormOpen = () => {
         this.setState({
             isOpen: true
@@ -79,6 +72,27 @@ class EventDashboard extends Component {
     handleCancel = () => {
         this.setState({
             isOpen: false
+        });
+    };
+
+    handleUpdateEvent = updateEvent => {
+        this.setState({
+            events: this.state.events.map(event => {
+                if (event.id === updateEvent.id) {
+                    return Object.assign({}, updateEvent);
+                } else {
+                    return event;
+                }
+            }),
+            isOpen: false,
+            selectedEvent: null
+        });
+    };
+
+    handleOpenEvent = eventToOpen => () => {
+        this.setState({
+            selectedEvent: eventToOpen,
+            isOpen: true
         });
     };
 
@@ -92,18 +106,30 @@ class EventDashboard extends Component {
         });
     };
 
+    handleDeleteEvent = eventId => () => {
+        const updatedEvents = this.state.events.filter(e => e.id !== eventId);
+        this.setState({
+            events: updatedEvents
+        });
+    };
+
     render() {
         const { selectedEvent } = this.state;
         return (
             <Grid>
                 <Grid.Column width={10}>
-                    <EventList onEventEdit={this.handleEditEvent} events={this.state.events} />
+                    <EventList
+                        deleteEvent={this.handleDeleteEvent}
+                        onEventOpen={this.handleOpenEvent}
+                        events={this.state.events}
+                    />
                 </Grid.Column>
 
                 <Grid.Column width={6}>
                     <Button onClick={this.handleFormOpen} positive content="Create Event" />
                     {this.state.isOpen && (
                         <EventForm
+                            updateEvent={this.handleUpdateEvent}
                             selectedEvent={selectedEvent}
                             createEvent={this.handleCreateEvent}
                             handleCancel={this.handleCancel}
